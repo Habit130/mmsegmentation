@@ -4,6 +4,7 @@ from pathlib import Path
 from mmengine.config import Config
 
 from mmseg.registry import DATASETS, MODELS
+from mmseg.utils import register_all_modules
 
 
 DEFAULT_CONFIGS = [
@@ -31,6 +32,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+    register_all_modules()
     for config_path in args.configs:
         cfg = Config.fromfile(config_path)
         MODELS.build(cfg.model)
