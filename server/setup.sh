@@ -10,6 +10,7 @@ TORCHVISION_VERSION="${TORCHVISION_VERSION:-0.16.2}"
 CUDA_TAG="${CUDA_TAG:-cu121}"
 MMENGINE_SPEC="${MMENGINE_SPEC:-mmengine>=0.5.0,<1.0.0}"
 MMCV_SPEC="${MMCV_SPEC:-mmcv>=2.0.0rc4,<2.2.0}"
+NUMPY_SPEC="${NUMPY_SPEC:-numpy<2}"
 INSTALL_OPTIONAL=0
 INSTALL_TESTS=0
 INSTALL_MULTIMODAL=0
@@ -39,6 +40,7 @@ Environment overrides:
   CUDA_TAG
   MMENGINE_SPEC
   MMCV_SPEC
+  NUMPY_SPEC
 EOF
 }
 
@@ -74,6 +76,16 @@ bootstrap_miniforge() {
     curl -L \
       "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" \
       -o "${installer}"
+  fi
+
+  if [[ -d "${MINIFORGE_DIR}" && ! -x "${MINIFORGE_DIR}/bin/conda" ]]; then
+    warn "Removing incomplete Miniforge directory at ${MINIFORGE_DIR}"
+    rm -rf "${MINIFORGE_DIR}"
+  fi
+
+  if [[ -x "${MINIFORGE_DIR}/bin/conda" ]]; then
+    log "Reusing existing Miniforge at ${MINIFORGE_DIR}"
+    return 0
   fi
 
   log "Installing Miniforge into ${MINIFORGE_DIR}"
@@ -127,6 +139,9 @@ install_python_packages() {
   log "Upgrading pip and installing core Python build helpers"
   "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install -U pip setuptools wheel
 
+  log "Pinning NumPy to ${NUMPY_SPEC} for torch/mmcv ABI compatibility"
+  "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install "${NUMPY_SPEC}"
+
   log "Installing PyTorch ${TORCH_VERSION} / torchvision ${TORCHVISION_VERSION} from ${torch_index_url}"
   "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install \
     "torch==${TORCH_VERSION}" \
@@ -138,8 +153,11 @@ install_python_packages() {
   "${conda_bin}" run -p "${ENV_PREFIX}" mim install "${MMENGINE_SPEC}"
   "${conda_bin}" run -p "${ENV_PREFIX}" mim install "${MMCV_SPEC}"
 
+  log "Installing MMSegmentation runtime dependencies"
+  "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install -r "${REPO_ROOT}/requirements/runtime.txt"
+
   log "Installing MMSegmentation in editable mode"
-  "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install -e "${REPO_ROOT}"
+  "${conda_bin}" run -p "${ENV_PREFIX}" python -m pip install -e "${REPO_ROOT}" --no-deps
 
   if [[ "${INSTALL_OPTIONAL}" -eq 1 ]]; then
     log "Installing optional dependencies"
@@ -259,4 +277,3 @@ cat <<EOF
 [server/setup] Runbook:
   docs/server-runbook.md
 EOF
-

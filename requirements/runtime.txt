@@ -1,5 +1,7 @@
 matplotlib
-numpy
+numpy<2
 packaging
 prettytable
 scipy
+ftfy
+regex
