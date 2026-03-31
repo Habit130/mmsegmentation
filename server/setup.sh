@@ -253,9 +253,10 @@ cat <<EOF
   source "${MINIFORGE_DIR}/etc/profile.d/conda.sh"
   conda activate "${ENV_PREFIX}"
 
-[server/setup] Training entrypoint:
-  bash tools/dist_train.sh <CONFIG> 1
+[server/setup] Batch training entrypoint:
+  bash server/train_all.sh
 
-[server/setup] Evaluation entrypoint:
-  bash tools/dist_test.sh <CONFIG> <CHECKPOINT> 1
+[server/setup] Runbook:
+  docs/server-runbook.md
 EOF
+

@@ -1,4 +1,5 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+import json
 import os.path as osp
 from collections import OrderedDict
 from typing import Dict, List, Optional, Sequence
@@ -50,6 +51,7 @@ class IoUMetric(BaseMetric):
                  beta: int = 1,
                  collect_device: str = 'cpu',
                  output_dir: Optional[str] = None,
+                 output_metrics_path: Optional[str] = None,
                  format_only: bool = False,
                  prefix: Optional[str] = None,
                  **kwargs) -> None:
@@ -62,6 +64,9 @@ class IoUMetric(BaseMetric):
         self.output_dir = output_dir
         if self.output_dir and is_main_process():
             mkdir_or_exist(self.output_dir)
+        self.output_metrics_path = output_metrics_path
+        if self.output_metrics_path and is_main_process():
+            mkdir_or_exist(osp.dirname(osp.abspath(self.output_metrics_path)))
         self.format_only = format_only
 
     def process(self, data_batch: dict, data_samples: Sequence[dict]) -> None:
@@ -157,6 +162,19 @@ class IoUMetric(BaseMetric):
 
         print_log('per class results:', logger)
         print_log('\n' + class_table_data.get_string(), logger=logger)
+
+        if self.output_metrics_path and is_main_process():
+            payload = dict(
+                summary={key: float(val) for key, val in metrics.items()},
+                per_class={})
+            for idx, class_name in enumerate(class_names):
+                payload['per_class'][class_name] = {
+                    key: float(val[idx])
+                    for key, val in ret_metrics_class.items()
+                    if key != 'Class'
+                }
+            with open(self.output_metrics_path, 'w', encoding='utf-8') as f:
+                json.dump(payload, f, indent=2, ensure_ascii=False)
 
         return metrics
 

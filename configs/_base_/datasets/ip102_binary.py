@@ -27,7 +27,7 @@ train_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file='ImageSets/Main/trainval.txt',
+        ann_file='ImageSets/Main/train.txt',
         data_prefix=dict(img_path='JPEGImages', seg_map_path='Masks'),
         pipeline=train_pipeline))
 
@@ -39,11 +39,22 @@ val_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
+        ann_file='ImageSets/Main/val.txt',
+        data_prefix=dict(img_path='JPEGImages', seg_map_path='Masks'),
+        pipeline=test_pipeline))
+
+test_dataloader = dict(
+    batch_size=1,
+    num_workers=4,
+    persistent_workers=True,
+    sampler=dict(type='DefaultSampler', shuffle=False),
+    dataset=dict(
+        type=dataset_type,
+        data_root=data_root,
         ann_file='ImageSets/Main/test.txt',
         data_prefix=dict(img_path='JPEGImages', seg_map_path='Masks'),
         pipeline=test_pipeline))
 
-test_dataloader = val_dataloader
-
-val_evaluator = dict(type='IoUMetric', iou_metrics=['mIoU', 'mDice'])
-test_evaluator = val_evaluator
+val_evaluator = dict(type='IoUMetric', iou_metrics=['mIoU', 'mDice', 'mFscore'])
+test_evaluator = dict(
+    type='IoUMetric', iou_metrics=['mIoU', 'mDice', 'mFscore'])
