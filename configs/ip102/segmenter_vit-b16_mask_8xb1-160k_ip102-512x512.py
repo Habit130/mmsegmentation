@@ -15,6 +15,6 @@ model = dict(
 optimizer = dict(lr=0.001, weight_decay=0.0)
 optim_wrapper = dict(type='OptimWrapper', optimizer=optimizer)
 
-train_dataloader = dict(batch_size=12)
-val_dataloader = dict(batch_size=8)
+train_dataloader = dict(batch_size=8)
+val_dataloader = dict(batch_size=4)
 test_dataloader = val_dataloader
