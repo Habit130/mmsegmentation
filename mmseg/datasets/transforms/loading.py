@@ -135,6 +135,21 @@ class LoadAnnotations(MMCV_LoadAnnotations):
 
 
 @TRANSFORMS.register_module()
+class LoadPlantSegAnnotations(LoadAnnotations):
+    """Load PlantSeg binary masks without mutating the source files.
+
+    Raw masks use ``0`` for background and ``255`` for lesion pixels. This
+    transform maps every positive value to class ``1`` so the standard
+    ignore-index logic remains available.
+    """
+
+    def _load_seg_map(self, results: dict) -> None:
+        super()._load_seg_map(results)
+        gt_seg_map = results['gt_seg_map']
+        results['gt_seg_map'] = (gt_seg_map > 0).astype(gt_seg_map.dtype)
+
+
+@TRANSFORMS.register_module()
 class LoadImageFromNDArray(LoadImageFromFile):
     """Load an image from ``results['img']``.
 

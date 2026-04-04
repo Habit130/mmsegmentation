@@ -3,7 +3,8 @@ from .formatting import PackSegInputs
 from .loading import (LoadAnnotations, LoadBiomedicalAnnotation,
                       LoadBiomedicalData, LoadBiomedicalImageFromFile,
                       LoadDepthAnnotation, LoadImageFromNDArray,
-                      LoadMultipleRSImageFromFile, LoadSingleRSImageFromFile)
+                      LoadMultipleRSImageFromFile, LoadPlantSegAnnotations,
+                      LoadSingleRSImageFromFile)
 # yapf: disable
 from .transforms import (CLAHE, AdjustGamma, Albu, BioMedical3DPad,
                          BioMedical3DRandomCrop, BioMedical3DRandomFlip,
@@ -25,6 +26,6 @@ __all__ = [
     'ResizeShortestEdge', 'BioMedicalGaussianNoise', 'BioMedicalGaussianBlur',
     'BioMedical3DRandomFlip', 'BioMedicalRandomGamma', 'BioMedical3DPad',
     'RandomRotFlip', 'Albu', 'LoadSingleRSImageFromFile', 'ConcatCDInput',
-    'LoadMultipleRSImageFromFile', 'LoadDepthAnnotation', 'RandomDepthMix',
-    'RandomFlip', 'Resize'
+    'LoadMultipleRSImageFromFile', 'LoadDepthAnnotation',
+    'LoadPlantSegAnnotations', 'RandomDepthMix', 'RandomFlip', 'Resize'
 ]
