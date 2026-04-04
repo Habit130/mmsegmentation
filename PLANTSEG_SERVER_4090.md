@@ -81,3 +81,26 @@ Validate or test:
 ```bash
 python tools/test.py configs/plantseg/<config-name>.py <checkpoint>
 ```
+
+Batch training and mask export:
+
+```bash
+bash tools/plantseg_batch_runner.sh
+```
+
+Only run selected models:
+
+```bash
+bash tools/plantseg_batch_runner.sh fcn_r50 pspnet_r50 segformer_b2
+```
+
+Export both test and val masks:
+
+```bash
+bash tools/plantseg_batch_runner.sh --export-val
+```
+
+Default mask export location:
+
+- `work_dirs/plantseg_batch/masks/<model_alias>/test/*.png`
+- `work_dirs/plantseg_batch/masks/<model_alias>/val/*.png` when `--export-val` is enabled
