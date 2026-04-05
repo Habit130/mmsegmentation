@@ -15,10 +15,21 @@ from .get_templates import get_predefined_templates
 from .io import datafrombytes
 from .misc import add_prefix, stack_batch
 from .set_env import register_all_modules
-from .tokenizer import tokenize
 from .typing_utils import (ConfigType, ForwardResults, MultiConfig,
                            OptConfigType, OptMultiConfig, OptSampleList,
                            SampleList, TensorDict, TensorList)
+
+try:
+    from .tokenizer import tokenize
+except ModuleNotFoundError as exc:
+    if exc.name != 'ftfy':
+        raise
+
+    def tokenize(*args, **kwargs):
+        raise ModuleNotFoundError(
+            'tokenize() requires the optional dependency `ftfy`. '
+            'Install it only if you need CLIP/open-vocabulary tokenization.'
+        ) from exc
 
 # isort: off
 from .mask_classification import MatchMasks, seg_data_to_instance_data
