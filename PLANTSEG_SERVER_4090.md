@@ -12,8 +12,10 @@ This delivery targets:
 
 1. Create the conda environment from `environment.server.cuda118.py310.yml`.
 2. Activate the environment.
-3. Install `mmcv==2.1.0` with `mim`.
-4. Install this repository in editable mode.
+3. If the environment already exists and currently has NumPy 2.x installed,
+   downgrade it to `numpy<2` before running MMSeg.
+4. Install `mmcv==2.1.0` with `mim`.
+5. Install this repository in editable mode.
 
 If `mim install mmcv==2.1.0` falls back to a source build, keep the same
 version and complete the build instead of downgrading CUDA or Python.
@@ -66,6 +68,7 @@ Environment setup:
 ```bash
 conda env create -f environment.server.cuda118.py310.yml
 conda activate mmseg-plantseg-cu118
+pip install "numpy<2"
 mim install mmcv==2.1.0
 pip install -e .
 ```

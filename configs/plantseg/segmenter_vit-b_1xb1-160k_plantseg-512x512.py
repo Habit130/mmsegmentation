@@ -1,9 +1,14 @@
 _base_ = [
-    '../segmenter/segmenter_vit-b_mask_8xb1-160k_ade20k-512x512.py',
-    '../_base_/datasets/plantseg.py'
+    '../_base_/models/segmenter_vit-b16_mask.py',
+    '../_base_/datasets/plantseg.py',
+    '../_base_/default_runtime.py',
+    '../_base_/schedules/schedule_160k.py'
 ]
 
+crop_size = (512, 512)
+data_preprocessor = dict(size=crop_size)
 model = dict(
+    data_preprocessor=data_preprocessor,
     decode_head=dict(num_classes=2),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(384, 384)))
 

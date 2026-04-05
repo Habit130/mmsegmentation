@@ -1,10 +1,15 @@
 _base_ = [
-    '../ocrnet/ocrnet_hr18_4xb4-160k_ade20k-512x512.py',
-    '../_base_/datasets/plantseg.py'
+    '../_base_/models/ocrnet_hr18.py',
+    '../_base_/datasets/plantseg.py',
+    '../_base_/default_runtime.py',
+    '../_base_/schedules/schedule_160k.py'
 ]
 
+crop_size = (512, 512)
+data_preprocessor = dict(size=crop_size)
 norm_cfg = dict(type='BN', requires_grad=True)
 model = dict(
+    data_preprocessor=data_preprocessor,
     backbone=dict(norm_cfg=norm_cfg),
     decode_head=[
         dict(

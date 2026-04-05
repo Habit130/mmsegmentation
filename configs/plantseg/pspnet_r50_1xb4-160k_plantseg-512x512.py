@@ -1,10 +1,15 @@
 _base_ = [
-    '../pspnet/pspnet_r50-d8_4xb4-160k_ade20k-512x512.py',
-    '../_base_/datasets/plantseg.py'
+    '../_base_/models/pspnet_r50-d8.py',
+    '../_base_/datasets/plantseg.py',
+    '../_base_/default_runtime.py',
+    '../_base_/schedules/schedule_160k.py'
 ]
 
+crop_size = (512, 512)
+data_preprocessor = dict(size=crop_size)
 norm_cfg = dict(type='BN', requires_grad=True)
 model = dict(
+    data_preprocessor=data_preprocessor,
     backbone=dict(norm_cfg=norm_cfg),
     decode_head=dict(num_classes=2, norm_cfg=norm_cfg),
     auxiliary_head=dict(num_classes=2, norm_cfg=norm_cfg),
