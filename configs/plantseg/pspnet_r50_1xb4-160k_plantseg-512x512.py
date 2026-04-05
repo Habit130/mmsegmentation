@@ -5,6 +5,7 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
+# Budget-640k benchmark profile: batch 8 x 80k iters = 640k crops.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 norm_cfg = dict(type='BN', requires_grad=True)
@@ -15,8 +16,10 @@ model = dict(
     auxiliary_head=dict(num_classes=2, norm_cfg=norm_cfg),
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(384, 384)))
 
-optim_wrapper = dict(optimizer=dict(lr=0.0025))
-train_dataloader = dict(batch_size=4)
+optim_wrapper = dict(optimizer=dict(lr=0.005))
+param_scheduler = [dict(type='PolyLR', eta_min=1e-4, power=0.9, begin=0, end=80000, by_epoch=False)]
+train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=8000)
+train_dataloader = dict(batch_size=8)
 val_dataloader = dict(batch_size=1)
 test_dataloader = dict(batch_size=1)
-default_hooks = dict(checkpoint=dict(save_best='mIoU', rule='greater'))
+default_hooks = dict(checkpoint=dict(by_epoch=False, interval=8000, save_best='mIoU', rule='greater'))

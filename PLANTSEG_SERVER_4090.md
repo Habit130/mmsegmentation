@@ -61,6 +61,19 @@ All configs:
 - validate and test with sliding-window inference
 - save the best checkpoint according to `mIoU`
 
+Current benchmark profile is the locked "budget-640k" setting:
+
+- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: batch 8, 80k iters
+- `UperNet-Swin-T / SegFormer-B2`: batch 4, 160k iters
+- `Segmenter-ViT-B`: batch 2, 320k iters
+- all models see the same total training budget: `640k` crops
+
+Note:
+
+- some config filenames still contain legacy suffixes such as `1xb4-160k`
+  for continuity with earlier delivery steps
+- use the actual values inside the config file as the source of truth
+
 ## Final command surface
 
 Environment setup:

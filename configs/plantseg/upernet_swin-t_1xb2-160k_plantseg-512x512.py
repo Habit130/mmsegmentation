@@ -5,6 +5,7 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
+# Budget-640k benchmark profile: batch 4 x 160k iters = 640k crops.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 checkpoint_file = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_tiny_patch4_window7_224_20220317-1cdeb081.pth'  # noqa
@@ -29,7 +30,7 @@ optim_wrapper = dict(
     _delete_=True,
     type='OptimWrapper',
     optimizer=dict(
-        type='AdamW', lr=0.0000075, betas=(0.9, 0.999), weight_decay=0.01),
+        type='AdamW', lr=0.000015, betas=(0.9, 0.999), weight_decay=0.01),
     paramwise_cfg=dict(
         custom_keys={
             'absolute_pos_embed': dict(decay_mult=0.),
@@ -50,7 +51,7 @@ param_scheduler = [
     )
 ]
 
-train_dataloader = dict(batch_size=2)
+train_dataloader = dict(batch_size=4)
 val_dataloader = dict(batch_size=1)
 test_dataloader = dict(batch_size=1)
 default_hooks = dict(checkpoint=dict(save_best='mIoU', rule='greater'))
