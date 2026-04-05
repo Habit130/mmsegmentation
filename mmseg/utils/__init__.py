@@ -22,12 +22,12 @@ from .typing_utils import (ConfigType, ForwardResults, MultiConfig,
 try:
     from .tokenizer import tokenize
 except ModuleNotFoundError as exc:
-    if exc.name != 'ftfy':
+    if exc.name not in {'ftfy', 'regex'}:
         raise
 
     def tokenize(*args, **kwargs):
         raise ModuleNotFoundError(
-            'tokenize() requires the optional dependency `ftfy`. '
+            'tokenize() requires the optional dependencies `ftfy` and `regex`. '
             'Install it only if you need CLIP/open-vocabulary tokenization.'
         ) from exc
 
