@@ -5,7 +5,7 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Budget-640k benchmark profile: batch 8 x 80k iters = 640k crops.
+# Uniform-80k benchmark profile: batch 8, 80k iters.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 norm_cfg = dict(type='BN', requires_grad=True)

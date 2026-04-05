@@ -61,12 +61,13 @@ All configs:
 - validate and test with sliding-window inference
 - save the best checkpoint according to `mIoU`
 
-Current benchmark profile is the locked "budget-640k" setting:
+Current benchmark profile is the locked "uniform-80k" setting:
 
 - `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: batch 8, 80k iters
-- `UperNet-Swin-T / SegFormer-B2`: batch 4, 160k iters
-- `Segmenter-ViT-B`: batch 2, 320k iters
-- all models see the same total training budget: `640k` crops
+- `UperNet-Swin-T / SegFormer-B2`: batch 4, 80k iters
+- `Segmenter-ViT-B`: batch 2, 80k iters
+- all models use the same iteration count: `80k`
+- this means total crop budget is no longer identical across models
 
 Note:
 

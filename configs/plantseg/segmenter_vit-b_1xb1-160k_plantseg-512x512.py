@@ -5,7 +5,7 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Budget-640k benchmark profile: batch 2 x 320k iters = 640k crops.
+# Uniform-80k benchmark profile: batch 2, 80k iters.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 model = dict(
@@ -23,12 +23,12 @@ param_scheduler = [
         eta_min=0.0,
         power=1.0,
         begin=1500,
-        end=320000,
+        end=80000,
         by_epoch=False,
     )
 ]
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=320000, val_interval=32000)
+train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=8000)
 train_dataloader = dict(batch_size=2)
 val_dataloader = dict(batch_size=1)
 test_dataloader = dict(batch_size=1)
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=32000, save_best='mIoU', rule='greater'))
+default_hooks = dict(checkpoint=dict(by_epoch=False, interval=8000, save_best='mIoU', rule='greater'))
