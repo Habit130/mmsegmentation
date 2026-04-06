@@ -61,13 +61,13 @@ All configs:
 - validate and test with sliding-window inference
 - save the best checkpoint according to `mIoU`
 
-Current benchmark profile is the locked "uniform-80k" setting:
+Current benchmark profile is the locked "uniform-80k-samples" setting:
 
-- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 4, 80k iters
-- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 4, 80k iters
-- `Segmenter-ViT-B`: train batch 8, val/test batch 4, 80k iters
-- all models use the same iteration count: `80k`
-- this means total crop budget is no longer identical across models
+- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 4, 5k iters
+- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 4, 5k iters
+- `Segmenter-ViT-B`: train batch 8, val/test batch 4, 10k iters
+- all models see the same total training budget: `80,000` crops
+- validation/checkpoint intervals are also aligned by sample budget rather than raw iter count
 
 Note:
 

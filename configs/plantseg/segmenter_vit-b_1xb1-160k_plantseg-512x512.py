@@ -5,7 +5,8 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Uniform-80k profile: train batch 8, val/test batch 4.
+# Uniform-80k-samples profile: train batch 8, val/test batch 4,
+# max_iters 10000 so each model sees 80,000 crops.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 model = dict(
@@ -23,12 +24,12 @@ param_scheduler = [
         eta_min=0.0,
         power=1.0,
         begin=1500,
-        end=80000,
+        end=10000,
         by_epoch=False,
     )
 ]
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=8000)
+train_cfg = dict(type='IterBasedTrainLoop', max_iters=10000, val_interval=2500)
 train_dataloader = dict(batch_size=8)
 val_dataloader = dict(batch_size=4)
 test_dataloader = dict(batch_size=4)
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=8000, save_best='mIoU', rule='greater'))
+default_hooks = dict(checkpoint=dict(by_epoch=False, interval=2500, save_best='mIoU', rule='greater'))

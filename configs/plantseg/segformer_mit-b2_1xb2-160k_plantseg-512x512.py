@@ -5,7 +5,8 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Uniform-80k profile: train batch 16, val/test batch 4.
+# Uniform-80k-samples profile: train batch 16, val/test batch 4,
+# max_iters 5000 so each model sees 80,000 crops.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b2_20220624-66e8bf70.pth'  # noqa
@@ -41,7 +42,7 @@ param_scheduler = [
         eta_min=0.0,
         power=1.0,
         begin=1500,
-        end=80000,
+        end=5000,
         by_epoch=False,
     )
 ]
@@ -49,5 +50,5 @@ param_scheduler = [
 train_dataloader = dict(batch_size=16)
 val_dataloader = dict(batch_size=4)
 test_dataloader = dict(batch_size=4)
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=8000)
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=8000, save_best='mIoU', rule='greater'))
+train_cfg = dict(type='IterBasedTrainLoop', max_iters=5000, val_interval=1250)
+default_hooks = dict(checkpoint=dict(by_epoch=False, interval=1250, save_best='mIoU', rule='greater'))
