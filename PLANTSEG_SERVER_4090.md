@@ -63,9 +63,9 @@ All configs:
 
 Current benchmark profile is the locked "uniform-80k-samples" setting:
 
-- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 4, 5k iters
-- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 4, 5k iters
-- `Segmenter-ViT-B`: train batch 8, val/test batch 4, 10k iters
+- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 1, 5k iters
+- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 1, 5k iters
+- `Segmenter-ViT-B`: train batch 8, val/test batch 1, 10k iters
 - all models see the same total training budget: `80,000` crops
 - validation/checkpoint intervals are also aligned by sample budget rather than raw iter count
 
@@ -74,6 +74,9 @@ Note:
 - some config filenames still contain legacy suffixes such as `1xb4-160k`
   for continuity with earlier delivery steps
 - use the actual values inside the config file as the source of truth
+- PlantSeg validation/test images are not guaranteed to share one resolution,
+  so `val/test_dataloader.batch_size` must stay at `1` unless the evaluation
+  pipeline is changed to enforce a common size
 
 ## Final command surface
 

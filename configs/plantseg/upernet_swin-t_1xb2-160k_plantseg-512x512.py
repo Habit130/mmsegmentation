@@ -5,7 +5,8 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Uniform-80k-samples profile: train batch 16, val/test batch 4,
+# Uniform-80k-samples profile: train batch 16,
+# val/test batch 1 because PlantSeg validation images have mixed resolutions.
 # max_iters 5000 so each model sees 80,000 crops.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
@@ -53,7 +54,7 @@ param_scheduler = [
 ]
 
 train_dataloader = dict(batch_size=16)
-val_dataloader = dict(batch_size=4)
-test_dataloader = dict(batch_size=4)
+val_dataloader = dict(batch_size=1)
+test_dataloader = dict(batch_size=1)
 train_cfg = dict(type='IterBasedTrainLoop', max_iters=5000, val_interval=1250)
 default_hooks = dict(checkpoint=dict(by_epoch=False, interval=1250, save_best='mIoU', rule='greater'))
