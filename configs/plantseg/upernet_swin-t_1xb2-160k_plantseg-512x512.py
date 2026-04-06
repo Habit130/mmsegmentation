@@ -5,7 +5,7 @@ _base_ = [
     '../_base_/schedules/schedule_160k.py'
 ]
 
-# Uniform-80k benchmark profile: batch 4, 80k iters.
+# Uniform-80k profile: train batch 16, val/test batch 4.
 crop_size = (512, 512)
 data_preprocessor = dict(size=crop_size)
 checkpoint_file = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/swin/swin_tiny_patch4_window7_224_20220317-1cdeb081.pth'  # noqa
@@ -30,7 +30,7 @@ optim_wrapper = dict(
     _delete_=True,
     type='OptimWrapper',
     optimizer=dict(
-        type='AdamW', lr=0.000015, betas=(0.9, 0.999), weight_decay=0.01),
+        type='AdamW', lr=0.00006, betas=(0.9, 0.999), weight_decay=0.01),
     paramwise_cfg=dict(
         custom_keys={
             'absolute_pos_embed': dict(decay_mult=0.),
@@ -51,8 +51,8 @@ param_scheduler = [
     )
 ]
 
-train_dataloader = dict(batch_size=4)
-val_dataloader = dict(batch_size=1)
-test_dataloader = dict(batch_size=1)
+train_dataloader = dict(batch_size=16)
+val_dataloader = dict(batch_size=4)
+test_dataloader = dict(batch_size=4)
 train_cfg = dict(type='IterBasedTrainLoop', max_iters=80000, val_interval=8000)
 default_hooks = dict(checkpoint=dict(by_epoch=False, interval=8000, save_best='mIoU', rule='greater'))

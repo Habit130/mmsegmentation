@@ -63,9 +63,9 @@ All configs:
 
 Current benchmark profile is the locked "uniform-80k" setting:
 
-- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: batch 8, 80k iters
-- `UperNet-Swin-T / SegFormer-B2`: batch 4, 80k iters
-- `Segmenter-ViT-B`: batch 2, 80k iters
+- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 4, 80k iters
+- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 4, 80k iters
+- `Segmenter-ViT-B`: train batch 8, val/test batch 4, 80k iters
 - all models use the same iteration count: `80k`
 - this means total crop budget is no longer identical across models
 
