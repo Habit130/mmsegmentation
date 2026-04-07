@@ -18,6 +18,7 @@ SKIP_TRAIN=0
 SKIP_TEST=0
 RESUME_TRAIN=0
 KEEP_GOING=0
+RUN_ALL=0
 
 declare -A CONFIG_MAP=(
   ["swin_t"]="configs/plantseg/upernet_swin-t_1xb2-160k_plantseg-512x512.py"
@@ -57,7 +58,8 @@ Model aliases:
   segformer_b2
 
 Default behavior:
-  - If no model alias is passed, run all 8 models in order.
+  - Model aliases must be passed explicitly.
+  - Use --all only when you really want to run all 8 models.
   - After training, pick the latest best_mIoU checkpoint automatically.
   - Export test split masks to masks/<model>/test as png files.
 
@@ -70,6 +72,8 @@ Options:
       Enable test-time augmentation during export.
   --resume
       Pass --resume to tools/train.py.
+  --all
+      Run all 8 delivered models.
   --skip-train
       Skip training and only run test export from existing work dirs.
   --skip-test
@@ -116,6 +120,10 @@ while [[ $# -gt 0 ]]; do
       RESUME_TRAIN=1
       shift
       ;;
+    --all)
+      RUN_ALL=1
+      shift
+      ;;
     --skip-train)
       SKIP_TRAIN=1
       shift
@@ -143,8 +151,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 MODELS=("$@")
-if [[ ${#MODELS[@]} -eq 0 ]]; then
+if [[ $RUN_ALL -eq 1 ]]; then
   MODELS=("${ALL_MODELS[@]}")
+elif [[ ${#MODELS[@]} -eq 0 ]]; then
+  echo "[ERROR] No model alias was provided. Pass model aliases explicitly or use --all." >&2
+  usage >&2
+  exit 1
 fi
 
 mkdir -p "$RUNS_ROOT" "$MASK_ROOT" "$LOG_ROOT"
