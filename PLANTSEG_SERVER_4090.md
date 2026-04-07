@@ -63,7 +63,8 @@ All configs:
 
 Current benchmark profile is the locked "uniform-80k-samples" setting:
 
-- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet`: train batch 16, val/test batch 1, 5k iters
+- `FCN / PSPNet / HRNet / OCRNet`: train batch 16, val/test batch 1, 5k iters
+- `DeepLabV3+`: train batch 8, val/test batch 1, 10k iters
 - `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 1, 5k iters
 - `Segmenter-ViT-B`: train batch 8, val/test batch 1, 10k iters
 - all models see the same total training budget: `80,000` crops
