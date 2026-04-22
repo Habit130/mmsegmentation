@@ -50,6 +50,8 @@ class IoUMetric(BaseMetric):
                  beta: int = 1,
                  collect_device: str = 'cpu',
                  output_dir: Optional[str] = None,
+                 save_pred_dir: Optional[str] = None,
+                 save_pred_gt_root: Optional[str] = None,
                  format_only: bool = False,
                  prefix: Optional[str] = None,
                  **kwargs) -> None:
@@ -62,7 +64,48 @@ class IoUMetric(BaseMetric):
         self.output_dir = output_dir
         if self.output_dir and is_main_process():
             mkdir_or_exist(self.output_dir)
+        self.save_pred_dir = save_pred_dir
+        self.save_pred_gt_root = save_pred_gt_root
+        if self.save_pred_dir and is_main_process():
+            mkdir_or_exist(self.save_pred_dir)
         self.format_only = format_only
+
+    def _get_pred_save_path(self, data_sample: dict) -> str:
+        seg_map_path = data_sample.get('seg_map_path', None)
+        if seg_map_path is not None:
+            rel_path = osp.basename(seg_map_path)
+            if self.save_pred_gt_root is not None:
+                try:
+                    rel_path = osp.relpath(seg_map_path, self.save_pred_gt_root)
+                except ValueError:
+                    rel_path = osp.basename(seg_map_path)
+                if rel_path.startswith('..'):
+                    rel_path = osp.basename(seg_map_path)
+        else:
+            sample_id = data_sample.get('sample_id', None)
+            if sample_id is not None:
+                rel_path = f'{sample_id}.png'
+            else:
+                basename = osp.splitext(osp.basename(data_sample['img_path']))[0]
+                rel_path = f'{basename}.png'
+
+        return osp.abspath(osp.join(self.save_pred_dir, rel_path))
+
+    def _save_binary_prediction(self, pred_label: torch.Tensor,
+                                data_sample: dict) -> None:
+        save_path = self._get_pred_save_path(data_sample)
+        mkdir_or_exist(osp.dirname(save_path))
+
+        output_mask = (pred_label.cpu().numpy() > 0).astype(np.uint8) * 255
+        output = Image.fromarray(output_mask, mode='L')
+
+        seg_map_path = data_sample.get('seg_map_path', None)
+        if seg_map_path is not None:
+            with Image.open(seg_map_path) as gt_image:
+                if output.size != gt_image.size:
+                    output = output.resize(gt_image.size, resample=Image.NEAREST)
+
+        output.save(save_path)
 
     def process(self, data_batch: dict, data_samples: Sequence[dict]) -> None:
         """Process one batch of data and data_samples.
@@ -85,7 +128,9 @@ class IoUMetric(BaseMetric):
                     self.intersect_and_union(pred_label, label, num_classes,
                                              self.ignore_index))
             # format_result
-            if self.output_dir is not None:
+            if self.save_pred_dir is not None:
+                self._save_binary_prediction(pred_label, data_sample)
+            elif self.output_dir is not None:
                 basename = osp.splitext(osp.basename(
                     data_sample['img_path']))[0]
                 png_filename = osp.abspath(
@@ -113,7 +158,8 @@ class IoUMetric(BaseMetric):
         """
         logger: MMLogger = MMLogger.get_current_instance()
         if self.format_only:
-            logger.info(f'results are saved to {osp.dirname(self.output_dir)}')
+            save_dir = self.save_pred_dir or self.output_dir
+            logger.info(f'results are saved to {save_dir}')
             return OrderedDict()
         # convert list of tuples to tuple of lists, e.g.
         # [(A_1, B_1, C_1, D_1), ...,  (A_n, B_n, C_n, D_n)] to

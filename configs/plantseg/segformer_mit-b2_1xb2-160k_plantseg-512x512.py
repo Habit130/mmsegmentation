@@ -2,13 +2,12 @@ _base_ = [
     '../_base_/models/segformer_mit-b0.py',
     '../_base_/datasets/plantseg.py',
     '../_base_/default_runtime.py',
-    '../_base_/schedules/schedule_160k.py'
+    '../_base_/schedules/schedule_50e.py'
 ]
 
-# Uniform-80k-samples profile: train batch 16,
-# val/test batch 1 because PlantSeg validation images have mixed resolutions.
-# max_iters 5000 so each model sees 80,000 crops.
+# Epoch-50 profile: one full pass over the PlantSeg train split per epoch.
 crop_size = (512, 512)
+work_dir = './work_dirs/plantseg_epoch50/segformer_b2'
 data_preprocessor = dict(size=crop_size)
 checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b2_20220624-66e8bf70.pth'  # noqa
 norm_cfg = dict(type='BN', requires_grad=True)
@@ -37,19 +36,18 @@ optim_wrapper = dict(
 
 param_scheduler = [
     dict(
-        type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
+        type='LinearLR', start_factor=1e-6, by_epoch=True, begin=0, end=5),
     dict(
         type='PolyLR',
         eta_min=0.0,
         power=1.0,
-        begin=1500,
-        end=5000,
-        by_epoch=False,
+        begin=5,
+        end=50,
+        by_epoch=True,
     )
 ]
 
 train_dataloader = dict(batch_size=16)
 val_dataloader = dict(batch_size=1)
 test_dataloader = dict(batch_size=1)
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=5000, val_interval=1250)
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=1250, save_best='mIoU', rule='greater'))
+default_hooks = dict(checkpoint=dict(by_epoch=True, interval=5, save_best='mIoU', rule='greater'))

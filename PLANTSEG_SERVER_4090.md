@@ -61,14 +61,16 @@ All configs:
 - validate and test with sliding-window inference
 - save the best checkpoint according to `mIoU`
 
-Current benchmark profile is the locked "uniform-80k-samples" setting:
+Current benchmark profile is the locked `epoch-50` setting:
 
-- `FCN / PSPNet / HRNet / OCRNet`: train batch 16, val/test batch 1, 5k iters
-- `DeepLabV3+`: train batch 8, val/test batch 1, 10k iters
-- `UperNet-Swin-T / SegFormer-B2`: train batch 16, val/test batch 1, 5k iters
-- `Segmenter-ViT-B`: train batch 8, val/test batch 1, 10k iters
-- all models see the same total training budget: `80,000` crops
-- validation/checkpoint intervals are also aligned by sample budget rather than raw iter count
+- all models train with `EpochBasedTrainLoop`
+- each epoch traverses the full PlantSeg train split once
+- `FCN / PSPNet / DeepLabV3+ / HRNet / OCRNet / UperNet-Swin-T / SegFormer-B2`:
+  train batch 16, val/test batch 1, 50 epochs
+- `Segmenter-ViT-B`: train batch 8, val/test batch 1, 50 epochs
+- validation and checkpointing run every 5 epochs
+- with the audited train split size `9118`, each model now sees about `455,900`
+  training samples across 50 epochs
 
 Note:
 
@@ -78,6 +80,7 @@ Note:
 - PlantSeg validation/test images are not guaranteed to share one resolution,
   so `val/test_dataloader.batch_size` must stay at `1` unless the evaluation
   pipeline is changed to enforce a common size
+- the new epoch-based experiment root is `work_dirs/plantseg_epoch50`
 
 ## Final command surface
 
@@ -106,7 +109,7 @@ python tools/test.py configs/plantseg/<config-name>.py <checkpoint>
 Batch training and mask export:
 
 ```bash
-bash tools/plantseg_batch_runner.sh
+bash tools/plantseg_batch_runner.sh --all
 ```
 
 Only run selected models:
@@ -118,10 +121,10 @@ bash tools/plantseg_batch_runner.sh fcn_r50 pspnet_r50 segformer_b2
 Export both test and val masks:
 
 ```bash
-bash tools/plantseg_batch_runner.sh --export-val
+bash tools/plantseg_batch_runner.sh --export-val fcn_r50
 ```
 
 Default mask export location:
 
-- `work_dirs/plantseg_batch/masks/<model_alias>/test/*.png`
-- `work_dirs/plantseg_batch/masks/<model_alias>/val/*.png` when `--export-val` is enabled
+- `work_dirs/plantseg_epoch50/masks/<model_alias>/test/*.png`
+- `work_dirs/plantseg_epoch50/masks/<model_alias>/val/*.png` when `--export-val` is enabled

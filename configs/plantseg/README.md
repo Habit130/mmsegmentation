@@ -8,8 +8,10 @@ All configs share the same assumptions:
 - binary segmentation with classes `background` and `foreground`
 - `../plantseg/main.json` is the manifest source of truth
 - training uses 512x512 crops
+- training is epoch-based with 50 epochs
 - validation and test use sliding-window inference
 - best checkpoint selection is based on `mIoU`
+- validation and checkpointing run every 5 epochs
 
 Config list:
 

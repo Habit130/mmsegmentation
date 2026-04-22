@@ -2,13 +2,12 @@ _base_ = [
     '../_base_/models/fcn_r50-d8.py',
     '../_base_/datasets/plantseg.py',
     '../_base_/default_runtime.py',
-    '../_base_/schedules/schedule_160k.py'
+    '../_base_/schedules/schedule_50e.py'
 ]
 
-# Uniform-80k-samples profile: train batch 16,
-# val/test batch 1 because PlantSeg validation images have mixed resolutions.
-# max_iters 5000 so each model sees 80,000 crops.
+# Epoch-50 profile: one full pass over the PlantSeg train split per epoch.
 crop_size = (512, 512)
+work_dir = './work_dirs/plantseg_epoch50/fcn_r50'
 data_preprocessor = dict(size=crop_size)
 norm_cfg = dict(type='BN', requires_grad=True)
 model = dict(
@@ -19,9 +18,8 @@ model = dict(
     test_cfg=dict(mode='slide', crop_size=(512, 512), stride=(384, 384)))
 
 optim_wrapper = dict(optimizer=dict(lr=0.01))
-param_scheduler = [dict(type='PolyLR', eta_min=1e-4, power=0.9, begin=0, end=5000, by_epoch=False)]
-train_cfg = dict(type='IterBasedTrainLoop', max_iters=5000, val_interval=1250)
+param_scheduler = [dict(type='PolyLR', eta_min=1e-4, power=0.9, begin=0, end=50, by_epoch=True)]
 train_dataloader = dict(batch_size=16)
 val_dataloader = dict(batch_size=1)
 test_dataloader = dict(batch_size=1)
-default_hooks = dict(checkpoint=dict(by_epoch=False, interval=1250, save_best='mIoU', rule='greater'))
+default_hooks = dict(checkpoint=dict(by_epoch=True, interval=5, save_best='mIoU', rule='greater'))

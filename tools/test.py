@@ -22,6 +22,11 @@ def parse_args():
         type=str,
         help='The directory to save output prediction for offline evaluation')
     parser.add_argument(
+        '--save_pred_dir',
+        type=str,
+        help='Directory to save predicted binary masks without running '
+        'metric evaluation')
+    parser.add_argument(
         '--show', action='store_true', help='show prediction results')
     parser.add_argument(
         '--show-dir',
@@ -58,6 +63,50 @@ def parse_args():
     return args
 
 
+def _get_base_dataset_cfg(dataset_cfg):
+    while dataset_cfg is not None and 'dataset' in dataset_cfg:
+        dataset_cfg = dataset_cfg['dataset']
+    return dataset_cfg
+
+
+def _infer_gt_root(dataset_cfg):
+    dataset_cfg = _get_base_dataset_cfg(dataset_cfg)
+    if dataset_cfg is None:
+        return None
+
+    data_root = dataset_cfg.get('data_root', None)
+    data_prefix = dataset_cfg.get('data_prefix', None) or {}
+    seg_map_path = data_prefix.get('seg_map_path', None)
+
+    if seg_map_path is not None:
+        if data_root is not None and not osp.isabs(seg_map_path):
+            return osp.abspath(osp.join(data_root, seg_map_path))
+        return osp.abspath(seg_map_path)
+
+    if data_root is not None:
+        return osp.abspath(data_root)
+
+    return None
+
+
+def _set_save_pred_options(evaluator_cfg, save_pred_dir, gt_root):
+    if evaluator_cfg is None:
+        return
+
+    if isinstance(evaluator_cfg, (list, tuple)):
+        for cfg in evaluator_cfg:
+            _set_save_pred_options(cfg, save_pred_dir, gt_root)
+        return
+
+    evaluator_cfg['format_only'] = True
+    evaluator_cfg['output_dir'] = save_pred_dir
+
+    metric_type = evaluator_cfg.get('type', None)
+    if metric_type in ['IoUMetric', 'PlantSegMetric']:
+        evaluator_cfg['save_pred_dir'] = save_pred_dir
+        evaluator_cfg['save_pred_gt_root'] = gt_root
+
+
 def trigger_visualization_hook(cfg, args):
     default_hooks = cfg.default_hooks
     if 'visualization' in default_hooks:
@@ -81,6 +130,10 @@ def trigger_visualization_hook(cfg, args):
 
 def main():
     args = parse_args()
+
+    if args.out is not None and args.save_pred_dir is not None:
+        raise ValueError('`--out` and `--save_pred_dir` cannot be used '
+                         'together.')
 
     # load config
     cfg = Config.fromfile(args.config)
@@ -106,6 +159,10 @@ def main():
         cfg.test_dataloader.dataset.pipeline = cfg.tta_pipeline
         cfg.tta_model.module = cfg.model
         cfg.model = cfg.tta_model
+
+    if args.save_pred_dir is not None:
+        gt_root = _infer_gt_root(cfg.test_dataloader.get('dataset', None))
+        _set_save_pred_options(cfg.test_evaluator, args.save_pred_dir, gt_root)
 
     # add output_dir in metric
     if args.out is not None:
