@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
-WORK_ROOT="${WORK_ROOT:-$ROOT_DIR/work_dirs/plantseg_epoch50}"
+WORK_ROOT="${WORK_ROOT:-$ROOT_DIR/work_dirs/plantseg_batch}"
 RUNS_ROOT="${RUNS_ROOT:-$WORK_ROOT/runs}"
 MASK_ROOT="${MASK_ROOT:-$WORK_ROOT/pred_masks}"
 EVAL_ROOT="${EVAL_ROOT:-$WORK_ROOT/eval_metrics}"
@@ -66,7 +66,7 @@ Default behavior:
 
 Options:
   --work-root DIR
-      Root output directory. Default: work_dirs/plantseg_epoch50
+      Root output directory. Default: work_dirs/plantseg_batch
   --runs-root DIR
       Root directory of trained model work dirs. Default: <work-root>/runs
   --mask-root DIR
