@@ -67,6 +67,12 @@ Default behavior:
 Options:
   --work-root DIR
       Root output directory. Default: work_dirs/plantseg_epoch50
+  --runs-root DIR
+      Root directory of trained model work dirs. Default: <work-root>/runs
+  --mask-root DIR
+      Root directory to save predicted masks. Default: <work-root>/pred_masks
+  --eval-root DIR
+      Root directory to save metric logs. Default: <work-root>/eval_metrics
   --gt-root DIR
       GT root passed to eval_ris_metrics.py. Default: ../plantseg
   --cuda-visible-devices IDS
@@ -102,6 +108,21 @@ while [[ $# -gt 0 ]]; do
       MASK_ROOT="$WORK_ROOT/pred_masks"
       EVAL_ROOT="$WORK_ROOT/eval_metrics"
       LOG_ROOT="$WORK_ROOT/logs"
+      shift 2
+      ;;
+    --runs-root)
+      require_value "$1" "${2:-}"
+      RUNS_ROOT="$2"
+      shift 2
+      ;;
+    --mask-root)
+      require_value "$1" "${2:-}"
+      MASK_ROOT="$2"
+      shift 2
+      ;;
+    --eval-root)
+      require_value "$1" "${2:-}"
+      EVAL_ROOT="$2"
       shift 2
       ;;
     --gt-root)
